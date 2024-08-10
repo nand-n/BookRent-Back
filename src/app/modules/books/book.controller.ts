@@ -9,6 +9,8 @@ import { Role } from '../users/enums/role.enum';
 import { RolesGuard } from '../auth/autherization/guards/roles.guard';
 import { REQUEST_USER } from '../auth/auth.constants';
 import { User } from '../users/entities/user.entity';
+import { Category } from '../catagory/entities/catagory.entity';
+import { PublishBookDto } from './dto/publish-book.dto';
 
 @Controller('books')
 export class BookController {
@@ -21,7 +23,6 @@ export class BookController {
   create(@Body() createBookDto: CreateBookDto , 
   @UploadedFiles() files: Express.Multer.File[],
   @Req() req: Request
-
 ){
   const currentUser = req[REQUEST_USER] as User;
     try {
@@ -31,6 +32,11 @@ export class BookController {
     }
   }
 
+  @Get('/by-category')
+  async getBooksByCategory(): Promise<{ categoryId: string, categoryName: string, bookCount: number, books: Book[] }[]> {
+      return this.bookService.booksByCategory();
+  }
+  
   @Get()
   findAll(): Promise<Book[]> {
     return this.bookService.findAll();
@@ -44,6 +50,23 @@ export class BookController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateBookDto: UpdateBookDto): Promise<Book> {
     return this.bookService.update(id, updateBookDto);
+  }
+
+  @Patch('/:id/publish')
+  @UseInterceptors(FilesInterceptor("files"))
+  async publishBook(
+      @Param('id') bookId: string,
+      @Body() publishBookDto: PublishBookDto,
+      @UploadedFiles() files: Express.Multer.File[],
+      @Req() req: Request
+  ) {
+    const currentUser = req[REQUEST_USER] as User;
+      return this.bookService.publishBook(bookId, publishBookDto , files , currentUser);
+  }
+
+  @Patch('/:id/approve')
+  async approveBook(@Param('id') bookId: string) {
+      return this.bookService.approveBook(bookId);
   }
 
   @Delete(':id')

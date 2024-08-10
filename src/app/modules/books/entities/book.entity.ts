@@ -12,7 +12,7 @@ export class Book extends BaseModel {
   @Column({ length: 500, type: 'varchar' })
   authorName: string;
 
-  @Column({  type: 'bigint', unique: true })
+  @Column({  type: 'int', unique: true })
   bookNumber: number;
 
   @Column({ type: 'enum', enum: BookStatus, default: BookStatus.FREE })
@@ -20,6 +20,8 @@ export class Book extends BaseModel {
 
   @Column({ type: 'boolean', default: false })
   status: boolean;
+  @Column({ type: 'boolean', default: false })
+  approved: boolean;
   
   @ManyToOne(() => User)
   @JoinColumn({ name: 'ownerId' })
@@ -29,7 +31,7 @@ export class Book extends BaseModel {
   @JoinColumn({ name: 'category' })
   category: Category;
 
-  @Column({ type:'bigint',nullable: true })
+  @Column({ type:'int',nullable: true })
   bookQuantity: number;
 
   @Column({ type: 'float', default: 0.0 })

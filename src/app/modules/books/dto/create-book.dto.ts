@@ -27,7 +27,7 @@ export class CreateBookDto {
   @IsOptional()
   @IsInt()
   rentPricePerWeek: number;
-
+  @IsOptional()
   @IsInt()
   bookNumber:number
 }

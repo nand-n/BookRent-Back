@@ -7,6 +7,7 @@ import { UpdateBookDto } from './dto/update-book.dto';
 import { Category } from '../catagory/entities/catagory.entity';
 import { User } from '../users/entities/user.entity';
 import { last } from 'rxjs';
+import { PublishBookDto } from './dto/publish-book.dto';
 
 @Injectable()
 export class BookService {
@@ -35,9 +36,13 @@ export class BookService {
     createBookDto.coverImageUrl =  coverPath ? `${process.env.IMG_URL}${coverPath}`:null;
     createBookDto.pdfUrl = pdfPath ? `${process.env.IMG_URL}${pdfPath}` : null;
 
-   const lastBook = await this.bookRepository.find()
-    console.log(lastBook[lastBook?.length -1].bookNumber + 1 );
-    createBookDto.bookNumber = Number(lastBook[lastBook?.length -1].bookNumber + 1 )
+  const lastBook = await this.bookRepository.find({
+    order: { bookNumber: 'DESC' },
+    take: 1
+});
+
+const lastBookNumber = lastBook.length > 0 ? lastBook[0].bookNumber : 0;
+createBookDto.bookNumber = lastBookNumber + 1;
 
     const user = await this.userRepository.findOne({ where: { id: currentUser.id } });
     if (!user) {
@@ -53,6 +58,57 @@ export class BookService {
 
     return this.bookRepository.save(book);
   }
+  async publishBook(
+    bookId: string,
+    updateBookDto: PublishBookDto,
+    files:Express.Multer.File[],
+    currentUser:User
+): Promise<Book> {
+    const book = await this.bookRepository.findOne({
+      where:{id:bookId}
+    });
+    if (!book) {
+        throw new NotFoundException('Book not found');
+    }
+
+    let coverPath: string;
+    files.forEach((file: { mimetype: string; path: string; }) => {
+      if (file.mimetype.startsWith("image/")) {
+        coverPath = file.path.replace(/\\/g, "/");
+      }
+    });
+
+    updateBookDto.coverImageUrl =  coverPath ? `${process.env.IMG_URL}${coverPath}`:null;
+
+
+    if (updateBookDto.bookQuantity) {
+      book.bookQuantity = parseInt(updateBookDto.bookQuantity, 10);
+  }
+  if (updateBookDto.coverImageUrl) {
+      book.coverImageUrl = updateBookDto.coverImageUrl;
+  }
+  if (updateBookDto.price) {
+      book.price = parseFloat(updateBookDto.price);
+  }
+  book.status = true; 
+
+    return this.bookRepository.save(book);
+}
+  
+async approveBook(bookId: string): Promise<Book> {
+  const book = await this.bookRepository.findOne({
+    where:{
+      id:bookId
+    }
+  });
+  if (!book) {
+      throw new NotFoundException('Book not found');
+  }
+
+  book.approved = true;
+
+  return this.bookRepository.save(book);
+}
 
   findAll(): Promise<Book[]> {
     return this.bookRepository.find({ relations: ['user', 'category'] });
@@ -65,6 +121,29 @@ export class BookService {
     }
     return book;
   }
+
+  async booksByCategory(): Promise<{ categoryId: string, categoryName: string, bookCount: number, books: Book[] }[]> {
+    const booksWithCategory = await this.bookRepository.find({ relations: ['category'] });
+
+    const categoryMap: { [key: string]: { name: string, books: Book[] } } = {};
+
+    booksWithCategory.forEach(book => {
+        const categoryId = book.category.id;
+        if (!categoryMap[categoryId]) {
+            categoryMap[categoryId] = { name: book.category.name, books: [] };
+        }
+        categoryMap[categoryId].books.push(book);
+    });
+
+    const result = Object.keys(categoryMap).map(categoryId => ({
+        categoryId,
+        categoryName: categoryMap[categoryId].name,
+        bookCount: categoryMap[categoryId].books.length,
+        books: categoryMap[categoryId].books
+    }));
+
+    return result;
+}
 
   async update(id: string, updateBookDto: UpdateBookDto): Promise<Book> {
     const book = await this.bookRepository.preload({ id, ...updateBookDto });
