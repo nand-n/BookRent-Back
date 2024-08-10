@@ -41,6 +41,7 @@
     "class-validators": "^1.0.1",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
+    "date-fns": "^3.6.0",
     "dayjs": "^1.11.12",
     "express-session": "^1.18.0",
     "helmet": "^7.1.0",
@@ -111,7 +112,6 @@
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
-    
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
