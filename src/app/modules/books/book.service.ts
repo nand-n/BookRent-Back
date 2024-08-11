@@ -114,6 +114,14 @@ async approveBook(bookId: string): Promise<Book> {
     return this.bookRepository.find({ relations: ['user', 'category'] });
   }
 
+
+async getAllBookForAdmin(user:User): Promise<Book[]> {
+
+     const book =await this.bookRepository.find( { relations: ['user', 'category'] });
+
+     return book.filter((item)=> item?.user?.id == user?.id) 
+  }
+
   async findOne(id: string): Promise<Book> {
     const book = await this.bookRepository.findOne({ where: { id }, relations: ['user', 'category'] });
     if (!book) {
