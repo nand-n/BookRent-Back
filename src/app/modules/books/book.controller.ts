@@ -9,7 +9,6 @@ import { Role } from '../users/enums/role.enum';
 import { RolesGuard } from '../auth/autherization/guards/roles.guard';
 import { REQUEST_USER } from '../auth/auth.constants';
 import { User } from '../users/entities/user.entity';
-import { Category } from '../catagory/entities/catagory.entity';
 import { PublishBookDto } from './dto/publish-book.dto';
 
 @Controller('books')
@@ -41,7 +40,13 @@ export class BookController {
   findAll(): Promise<Book[]> {
     return this.bookService.findAll();
   }
-
+  @Get('all-books-by-admin')
+  @Roles(Role.Admin)
+  @UseGuards(RolesGuard)
+  getAllBookForAdmin( @Req() req: Request): Promise<Book[]> {
+    const currentUser = req[REQUEST_USER] as User;
+    return this.bookService.getAllBookForAdmin(currentUser);
+  }
   @Get(':id')
   findOne(@Param('id') id: string): Promise<Book> {
     return this.bookService.findOne(id);
