@@ -43,4 +43,6 @@ export class Book extends BaseModel {
   @Column({ nullable: true })
   pdfUrl: string;
 
+  @Column({ nullable: true })
+  location: string;
 }
