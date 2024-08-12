@@ -25,7 +25,7 @@ export class BookService {
   async create(createBookDto: CreateBookDto , files:any , currentUser:User): Promise<Book> {
     let pdfPath: string;
     let coverPath: string;
-    files.forEach((file: { mimetype: string; path: string; }) => {
+    files?.forEach((file: { mimetype: string; path: string; }) => {
       if (file.mimetype === "application/pdf") {
         pdfPath = file.path.replace(/\\/g, "/");
       } else if (file.mimetype.startsWith("image/")) {
@@ -115,6 +115,10 @@ async approveBook(bookId: string): Promise<Book> {
   }
 
 
+  async getLiveBookStatus(currentUser:User){
+    const books =await this.bookRepository.find({ relations: ['user'] })
+    return books?.filter(item=>currentUser.role == "admin" ? item : item.user.id == currentUser.id)
+  }
 async getAllBookForAdmin(user:User): Promise<Book[]> {
 
      const book =await this.bookRepository.find( { relations: ['user', 'category'] });

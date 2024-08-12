@@ -10,13 +10,14 @@ import { RolesGuard } from '../auth/autherization/guards/roles.guard';
 import { REQUEST_USER } from '../auth/auth.constants';
 import { User } from '../users/entities/user.entity';
 import { PublishBookDto } from './dto/publish-book.dto';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('books')
+@ApiTags('Books')
 export class BookController {
   constructor(private readonly bookService: BookService) {}
-
   @Post()
-  @Roles(Role.Admin)
+  @Roles(Role.Admin,Role.Regular)
   @UseGuards(RolesGuard)
   @UseInterceptors(FilesInterceptor("files"))
   create(@Body() createBookDto: CreateBookDto , 
@@ -40,8 +41,15 @@ export class BookController {
   findAll(): Promise<Book[]> {
     return this.bookService.findAll();
   }
+  @Get('live-book-status')
+  @Roles(Role.Admin , Role.Regular)
+  @UseGuards(RolesGuard)
+  async getLiveBookStatus(  @Req() req: Request): Promise<any> {
+    const currentUser = req[REQUEST_USER] as User;
+    return this.bookService.getLiveBookStatus(currentUser);
+  }
   @Get('all-books-by-admin')
-  @Roles(Role.Admin)
+  @Roles(Role.Admin , Role.Regular)
   @UseGuards(RolesGuard)
   getAllBookForAdmin( @Req() req: Request): Promise<Book[]> {
     const currentUser = req[REQUEST_USER] as User;
