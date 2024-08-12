@@ -43,6 +43,14 @@ export class UsersController {
     return this.usersService.findAll(options, orderBy, orderDirection);
   }
 
+  @Get('owners')
+  @Roles(Role.Admin)
+  @UseGuards(RolesGuard)
+  async getOwners(
+  ) {
+    return this.usersService.getOwners();
+    
+  }
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
@@ -57,6 +65,9 @@ export class UsersController {
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
   }
+
+
+
 
 
   @Patch(':id/assign-role')

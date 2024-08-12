@@ -56,6 +56,16 @@ export class UsersService {
     }
     return await this.userRepository.softDelete({ id });
   }
+  
+  async getOwners(): Promise<User[]> {
+    const ownersWithBooks = await this.userRepository.find({
+      where: {
+        role: Role.Regular,
+      },
+      relations: ['books'], 
+    });
+    return ownersWithBooks ||[];
+  }
 
   async assignRole(id: string, role: Role, currentUser: User): Promise<User> {
     this.ensureSuperuser(currentUser);
