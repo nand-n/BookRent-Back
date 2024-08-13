@@ -3,6 +3,7 @@ import { BaseModel } from '../../../../database/base.model';
 import { User } from '../../users/entities/user.entity';
 import { Category } from '../../catagory/entities/catagory.entity';
 import { BookStatus } from '../enums/book.enum';
+import { Sale } from '../../sale/entities/sale.entity';
 
 @Entity()
 export class Book extends BaseModel {
@@ -26,6 +27,10 @@ export class Book extends BaseModel {
   @ManyToOne(() => User)
   @JoinColumn({ name: 'ownerId' })
   user: User;
+
+  @ManyToOne(() => Sale)
+  @JoinColumn({ name: 'saleId' })
+  sale: Sale;
 
   @ManyToOne(() => Category)
   @JoinColumn({ name: 'category' })
