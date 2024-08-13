@@ -1,5 +1,5 @@
 import { BaseModel } from '@root/src/database/base.model';
-import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { Book } from '../../books/entities/book.entity';
 import { User } from '../../users/entities/user.entity';
 
@@ -22,4 +22,9 @@ export class Sale extends BaseModel {
 
   @Column({ type: 'boolean', default: false })
   isCompleted: boolean;
+
+
+  @OneToMany(() => Book, (book) => book.user)
+  books: Book[];
+
 }
