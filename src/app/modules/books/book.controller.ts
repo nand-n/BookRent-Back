@@ -33,8 +33,11 @@ export class BookController {
   }
 
   @Get('/by-category')
-  async getBooksByCategory(): Promise<{ categoryId: string, categoryName: string, bookCount: number, books: Book[] }[]> {
-      return this.bookService.booksByCategory();
+  @Roles(Role.Admin,Role.Regular)
+  @UseGuards(RolesGuard)
+  async getBooksByCategory(@Req() req: Request): Promise<{ categoryId: string, categoryName: string, bookCount: number, books: Book[] }[]> {
+    const currentUser = req[REQUEST_USER] as User;
+      return this.bookService.booksByCategory(currentUser);
   }
   
   @Get()
