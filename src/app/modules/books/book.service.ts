@@ -6,7 +6,6 @@ import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { Category } from '../catagory/entities/catagory.entity';
 import { User } from '../users/entities/user.entity';
-import { last } from 'rxjs';
 import { PublishBookDto } from './dto/publish-book.dto';
 import { CategoryWithBooks } from './types/bookCatagory.type';
 
