@@ -8,6 +8,7 @@ import { Category } from '../catagory/entities/catagory.entity';
 import { User } from '../users/entities/user.entity';
 import { last } from 'rxjs';
 import { PublishBookDto } from './dto/publish-book.dto';
+import { CategoryWithBooks } from './types/bookCatagory.type';
 
 @Injectable()
 export class BookService {
@@ -123,7 +124,7 @@ async getAllBookForAdmin(user:User): Promise<Book[]> {
 
      const book =await this.bookRepository.find( { relations: ['user', 'category'] });
 
-     return book.filter((item)=> item?.user?.id == user?.id) 
+     return book.filter((item)=>  user.role == "owner" ?  item?.user?.id == user?.id:item) 
   }
 
   async findOne(id: string): Promise<Book> {
@@ -134,28 +135,42 @@ async getAllBookForAdmin(user:User): Promise<Book[]> {
     return book;
   }
 
-  async booksByCategory(): Promise<{ categoryId: string, categoryName: string, bookCount: number, books: Book[] }[]> {
-    const booksWithCategory = await this.bookRepository.find({ relations: ['category'] });
+  async booksByCategory(currentUser: User): Promise<CategoryWithBooks[]> {
+    let result: CategoryWithBooks[] = [];
+  
 
-    const categoryMap: { [key: string]: { name: string, books: Book[] } } = {};
-
-    booksWithCategory.forEach(book => {
+      let booksWithCategory: Book[];
+  
+      if (currentUser.role !== 'owner') {
+        booksWithCategory = await this.bookRepository.find({ relations: ['category'] });
+      } else {
+        const books = await this.bookRepository.find({
+          relations: ['category' , "user"],
+        });
+        booksWithCategory = books?.filter(item=> item?.user?.id == currentUser?.id)
+      }
+  
+      const categoryMap: Record<string, { name: string; books: Book[] }> = {};
+  
+      booksWithCategory?.forEach((book) => {
         const categoryId = book.category.id;
+  
         if (!categoryMap[categoryId]) {
-            categoryMap[categoryId] = { name: book.category.name, books: [] };
+          categoryMap[categoryId] = { name: book.category.name, books: [] };
         }
+  
         categoryMap[categoryId].books.push(book);
-    });
-
-    const result = Object.keys(categoryMap).map(categoryId => ({
+      });
+  
+      result = Object.keys(categoryMap).map((categoryId) => ({
         categoryId,
         categoryName: categoryMap[categoryId].name,
         bookCount: categoryMap[categoryId].books.length,
-        books: categoryMap[categoryId].books
-    }));
-
+        books: categoryMap[categoryId].books,
+      }));
+  
     return result;
-}
+  }
 
   async update(id: string, updateBookDto: UpdateBookDto): Promise<Book> {
     const book = await this.bookRepository.preload({ id, ...updateBookDto });
