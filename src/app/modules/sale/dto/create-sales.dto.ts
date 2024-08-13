@@ -1,13 +1,13 @@
-import { IsNotEmpty, IsNumber, IsDateString, IsBoolean } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsDateString, IsBoolean, IsString } from 'class-validator';
 
 export class CreateSaleDto {
   @IsNotEmpty()
-  @IsNumber()
-  bookId: number;
+  @IsString()
+  bookId: string;
 
   @IsNotEmpty()
-  @IsNumber()
-  buyerId: number;
+  @IsString()
+  buyerId: string;
 
   @IsNotEmpty()
   @IsNumber()
