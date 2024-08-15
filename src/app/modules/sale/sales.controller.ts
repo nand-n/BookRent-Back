@@ -21,7 +21,7 @@ export class SalesController {
   }
 
   @Get('earnings-summary')
-  @Roles(Role.Admin,Role.Regular)
+  @Roles(Role.Admin,Role.Regular, Role.SuperAdmin)
   @UseGuards(RolesGuard)
   async getEarningsSummary(@Req() req: Request): Promise<any> {
     const currentUser = req[REQUEST_USER] as User;
@@ -33,7 +33,7 @@ export class SalesController {
     return this.salesService.getLiveBookStatus();
   }
   @Get('monthly-statistics')
-  @Roles(Role.Admin,Role.Regular)
+  @Roles(Role.Admin,Role.Regular , Role.SuperAdmin)
   @UseGuards(RolesGuard)
   async getMonthlyStatistics(@Req() req: Request): Promise<MonthlySalesStatisticsDto> {
     const currentUser = req[REQUEST_USER] as User;

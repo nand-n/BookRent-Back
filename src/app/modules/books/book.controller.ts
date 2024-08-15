@@ -45,14 +45,14 @@ export class BookController {
     return this.bookService.findAll();
   }
   @Get('live-book-status')
-  @Roles(Role.Admin , Role.Regular)
+  @Roles(Role.Admin , Role.Regular , Role.SuperAdmin)
   @UseGuards(RolesGuard)
   async getLiveBookStatus(  @Req() req: Request): Promise<any> {
     const currentUser = req[REQUEST_USER] as User;
     return this.bookService.getLiveBookStatus(currentUser);
   }
   @Get('all-books-by-admin')
-  @Roles(Role.Admin , Role.Regular)
+  @Roles(Role.Admin , Role.Regular,Role.SuperAdmin)
   @UseGuards(RolesGuard)
   getAllBookForAdmin( @Req() req: Request): Promise<Book[]> {
     const currentUser = req[REQUEST_USER] as User;
