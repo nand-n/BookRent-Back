@@ -33,7 +33,7 @@ export class BookController {
   }
 
   @Get('/by-category')
-  @Roles(Role.Admin,Role.Regular)
+  @Roles(Role.Admin,Role.Regular,Role.SuperAdmin)
   @UseGuards(RolesGuard)
   async getBooksByCategory(@Req() req: Request): Promise<{ categoryId: string, categoryName: string, bookCount: number, books: Book[] }[]> {
     const currentUser = req[REQUEST_USER] as User;
